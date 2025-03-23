@@ -1,0 +1,181 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      String
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([email])
+}
+
+model Employee {
+  id              String    @id @default(cuid())
+  firstName       String
+  lastName        String
+  documentId      String
+  documentType    String
+  phone           String
+  email           String    @unique
+  address         String
+  birthDate       DateTime
+  hireDate        DateTime
+  terminationDate DateTime?
+  position        String
+  local           String
+  workShift       String
+  baseSalary      Float
+  bankSalary      Float
+  totalSalary     Float
+  status          String
+  role            String
+  workedDays      Int?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([email])
+  @@index([documentId])
+  @@index([local])
+}
+
+model Attendance {
+  id                    String    @id @default(cuid())
+  employeeId            String
+  date                  DateTime
+  checkIn               String?
+  checkOut              String?
+  expectedCheckIn       String
+  expectedCheckOut      String
+  lateMinutes           Int
+  earlyDepartureMinutes Int
+  isHoliday            Boolean
+  isAbsent             Boolean
+  isJustified          Boolean
+  justificationDocument String?
+  notes                String?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+}
+
+model Payroll {
+  id              String         @id @default(cuid())
+  employeeId      String
+  month           Int
+  year            Int
+  baseSalary      Float
+  bankSalary      Float
+  deductions      Float
+  additions       Float
+  finalHandSalary Float
+  totalSalary     Float
+  isPaidHand      Boolean
+  isPaidBank      Boolean
+  handPaymentDate DateTime?
+  bankPaymentDate DateTime?
+  details         PayrollDetail[]
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+}
+
+model PayrollDetail {
+  id        String   @id @default(cuid())
+  payrollId String
+  type      String
+  concept   String
+  amount    Float
+  date      DateTime
+  payroll   Payroll  @relation(fields: [payrollId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model DeliveryStats {
+  id           String   @id @default(cuid())
+  platform     String
+  week         Int
+  year         Int
+  orderCount   Int
+  revenue      Float
+  complaints   Int
+  rating       Float
+  local        String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Audit {
+  id            String     @id @default(cuid())
+  localId       String
+  local         String
+  date          DateTime
+  shift         String
+  supervisorId  String
+  supervisorName String
+  managerId     String
+  managerName   String
+  totalScore    Int
+  items         AuditItem[]
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+}
+
+model AuditItem {
+  id        String   @id @default(cuid())
+  auditId   String
+  category  String
+  name      String
+  value     Int
+  completed Boolean
+  audit     Audit    @relation(fields: [auditId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Billing {
+  id        String   @id @default(cuid())
+  localId   String
+  local     String
+  month     Int
+  year      Int
+  amount    Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Balance {
+  id                   String   @id @default(cuid())
+  localId              String
+  local                String
+  month                Int
+  year                 Int
+  counterSales         Float
+  deliverySales        Float
+  payrollExpenses      Float
+  rentExpenses         Float
+  maintenanceExpenses  Float
+  suppliesExpenses     Float
+  repairsExpenses      Float
+  otherExpenses        Float
+  totalIncome          Float
+  totalExpenses        Float
+  netProfit            Float
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+}
